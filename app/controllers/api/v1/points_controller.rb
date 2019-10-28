@@ -1,15 +1,20 @@
 module Api::V1
   class PointsController < ApplicationController
     def create
-      @point = Point.new(point_params)
-      if @point.startpoint == @point.endpoint
-        render json: 'Points cannot be equal'
-      elsif @point.distance > 100000
-        render json: 'Distance must be less than 100000'
-      elsif @point.save
-        render json: @point, status: :created
+      if check_point
+        if check_point.distance > params[:point][:distance]
+          check_point.update(distance: params[:point][:distance])
+          render json: 'Distance successfully updated'
+        else
+          render json: 'There is already a point with a shorter path'
+        end
       else
-        render json: @point.errors, status: :unprocessable_entity
+        @point = Point.new(point_params)
+        if @point.save
+          render json: @point, status: :created
+        else
+          render json: @point.errors, status: :unprocessable_entity
+        end
       end
     end
 
@@ -17,9 +22,9 @@ module Api::V1
       if check_weight
         render json: 'Weight must be between 1 and 50'
       else
-        path = Dijkstra.new(params[:origin], params[:destination], params[:weight].to_i, matrix)
+        path = Dijkstra.new(params[:origin].upcase, params[:destination].upcase, params[:weight].to_i, matrix)
         if path.cost.class != Array
-          render json: path.cost
+          render json: "Shipping price: R$ #{'%.2f' % path.cost}"
         else
           render json: 'No path found for points provided'
         end
@@ -27,6 +32,10 @@ module Api::V1
     end
 
     private
+
+    def check_point
+      Point.where(startpoint: params[:point][:startpoint], endpoint: params[:point][:endpoint]).first rescue nil
+    end
 
     def check_weight
       weight = params[:weight].to_i
