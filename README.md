@@ -1,64 +1,77 @@
-Ruby/Elixir Engineer Coding Challenge
-=======================
+# Shortest Path code challenge
 
-Hello!
+API utilizada para encontrar o menor caminho entre dois pontos em um grafo e calcular o custo mínimo de envio
 
-We've come up with this relatively open-ended programming/engineering challenge that will allow you to demonstrate your skills from the comfort of your own workspace. In addition, we know your time is valuable, so please feel free to use your completed work as a portfolio piece.
+## Como baixar o projeto
 
-We wish you the best of luck and can't wait to see what you create!
+* No Terminal digite o comando ```git clone https://github.com/ThiagoHocsis/backend-code-challenge.git```
 
-## Overview
+### Pré Requisitos
 
-Your goal is to develop a system to calculate the shipping cost for products of an order, based on it's weight and distance from origin to destination. The distribution points will be supplied to this system throught an API and the shipping cost will be calculated in another API, always aiming at the lowest cost to the customer.
+* Ruby versão 2.4.1
 
-To populate the database, another system will call the API informing the distance (in kilometers) between two distribution points of the distribution network. For example:
+* Rails versão 5.2.3
+
+
+### Instalação
+
+* Após fazer o clone no projeto navegue até pasta do projeto e digite ```bundle install``` e em seguida ```rails db:create rails db:migrate```
+
+
+## Como rodar os testes
+
+* Dentro da pasta do projeto digite no terminal ```rspec spec --format documentation```
+
+
+## Outras informações
+
+* Ferramenta utilizada para realização dos requests na API - POSTMAN, disponivel para download em
+https://www.getpostman.com/
+
+* Como rodar o linter de code smells - Acesso o projeto pelo terminal e digite ```rubocop```
+
+* Após rodar os testes é possivel verificar a cobertura de testes, para isso foi utilizada a gem Simplecov
+
+## Considerações
+
+O Objetivo do sistema é criar uma API que recebe dois pontos, que seriam duas cidades e uma distância que as separa, 
+por exemplo cidade A e cidade B, distancia 5, esse pontos são armazenados no banco de dados.
+Em um segundo momento uma requisição é feita para API com também dois pontos e uma peso, que seria o peso da encomenda a
+ser enviada e obtem como retorno caso seja encontrada um valor de envio.
+O calculo do menor caminho foi implementado utilizando o Algoritmo de Dijkstra que é um conhecido algoritmo para calcular o caminho mínimo entre dois
+pontos em um grafo dirigito, ou não dirigido com arestas de peso não negativo,
+criado pelo cientista da computação holandês Edsger Dijkstra em 1856, o algoritmo possui complexidade de O(m + n log n)
+onde m é o número de arestas e n é o número de vértices.
+
+## Exemplo de requisições e retorno.
+
+Uma requisição válida.
+
+/api/v1/points
+
+```javascript
+{
+"point":{ 
+   "startpoint":"B",
+   "endpoint":"D",
+   "distance":5
+}	
+}
 ```
-POST /distance
-A B 10
-```
-```
-POST /distance
-B C 15
-```
-```
-POST /distance
-A C 30
-```
 
-In a second moment, the shopping system will call the API informing the total weight of the order, the *source* and *destination* points. The system should return the lowest shipping cost, using the formula: `cost = distance * weight * 0.15`. For example:
+Essa requisição cria no banco de dados um objeto do tipo Point com os atributos startpoint = B, endpoint = D e distance = 5
 
-```
-GET /cost?origin=A&destination=C&weight=5
-18.75
-```
 
-Explanation: the shortest path from A to C is A -> B -> C = 25km. `cost = 25 * 5 * 0.15 = 18.75`
+Uma Requisição para:
+ 
+ /api/v1/cost?origin=A&destination=D&weight=2
 
-## Considerations
+Obtém como retorno:
 
-* The input format of distance should have the format `A B X`, where *0 < X <= 100000*. Wrong format or data should return an error;
-* If a distance point already exists, should be replaced with the new value;
-* The cost API should validate the given points and weight, where *0 < weight <= 50*. If no path was found between *origin*  and *destination*, an error should be returned;
-* The solution should be implemented in Ruby or Elixir. You could use the frameworks that you're most used to.
-* Both APIs will receive a large amount of requests: choose the design and technology wisely;
+Shipping price: R$ 0.30
 
-## Submission
+Que a partir dos pontos dados usando o algoritmo de Dijkstra e a fórmula para cálculo do valor cost = distance * weight * 0.15,
+obteve esse resultado.
 
-You can follow the GitHub Fork/Pull Request workflow by [forking this repository](https://github.com/RakutenBrasil/backend-code-challenge/fork), commiting your changes, and submiting a pull request to us, explaning your solution, technical decisions and how configure/use on the README file. For more information about that, you can see this [GitHub article](https://help.github.com/articles/fork-a-repo/#propose-changes-to-someone-elses-project).
+ 
 
-## What we are looking for
-
-We are looking for several things with this challenge. First, of course, we're looking for your answer to be technically correct. Beyond that, we're also looking for:
-
-* Is your code easy to read and understand?
-* Are you following the usual conventions for Ruby/Elixir development?
-* How good are you at writing tests? And how easy are they to read and understand?
-* Did you follow these directions?
-
-We will of course **examine your code to see its correctness, readability, general elegance, architectural decisions, and modularity**. If/when you meet with us, be prepared to talk about why and how you design your solution. We also test your system with a large amount of data to mesure the performance and to see if we can break stuff.
-
-That's it. There aren't any hidden gotchas or trick questions. That's really what we're going to do.
-
-## License
-
-We have licensed this project under the MIT license so that you may use this for a portfolio piece (or anything else!).
